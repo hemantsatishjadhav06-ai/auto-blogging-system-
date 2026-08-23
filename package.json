@@ -1,0 +1,19 @@
+{
+  "name": "neopolis-autoblog-v2",
+  "version": "2.0.0",
+  "description": "3-layer SEO auto-blogging service for Neopolis Infra: research -> topics+docs -> QA/humanise -> publish (Netlify + LinkedIn)",
+  "main": "src/index.js",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node test/unit.test.js"
+  },
+  "dependencies": {
+    "express": "^4.19.0",
+    "googleapis": "^140.0.0",
+    "node-cron": "^3.0.3"
+  }
+}

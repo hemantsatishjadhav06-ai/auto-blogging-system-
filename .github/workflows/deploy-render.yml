@@ -1,0 +1,57 @@
+# Deploys the service to Render.
+# Two ways to provide the Render API key:
+#   1. Repo secret RENDER_API_KEY (Settings > Secrets and variables > Actions) — used on every push.
+#   2. OR pass it as the "render_api_key" input when running the workflow manually (Actions tab > Run workflow).
+name: Deploy to Render
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      render_api_key:
+        description: "Render API key (leave blank to use the repo secret)"
+        required: false
+        default: ""
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create or update Render service
+        env:
+          SECRET_KEY: ${{ secrets.RENDER_API_KEY }}
+          INPUT_KEY: ${{ github.event.inputs.render_api_key }}
+          REPO_URL: ${{ github.server_url }}/${{ github.repository }}
+        run: |
+          set -e
+          RENDER_API_KEY="${INPUT_KEY:-$SECRET_KEY}"
+          if [ -z "$RENDER_API_KEY" ]; then echo "No Render key: add repo secret RENDER_API_KEY or pass the input"; exit 1; fi
+          echo "::add-mask::$RENDER_API_KEY"
+          AUTH="Authorization: Bearer $RENDER_API_KEY"
+          OWNER_ID=$(curl -s -H "$AUTH" https://api.render.com/v1/owners | python3 -c "import json,sys; print(json.load(sys.stdin)[0]['owner']['id'])")
+          echo "owner: $OWNER_ID"
+          EXISTING=$(curl -s -H "$AUTH" "https://api.render.com/v1/services?name=neopolis-autoblog&limit=1" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d[0]['service']['id'] if d else '')")
+          if [ -n "$EXISTING" ]; then
+            echo "service exists: $EXISTING — triggering deploy"
+            curl -s -X POST -H "$AUTH" "https://api.render.com/v1/services/$EXISTING/deploys" -H "Content-Type: application/json" -d '{}' | head -c 300
+            SERVICE_ID="$EXISTING"
+          else
+            echo "creating service from $REPO_URL"
+            RESP=$(curl -s -X POST -H "$AUTH" -H "Content-Type: application/json" https://api.render.com/v1/services -d "{
+              \"type\": \"web_service\",
+              \"name\": \"neopolis-autoblog\",
+              \"ownerId\": \"$OWNER_ID\",
+              \"repo\": \"$REPO_URL\",
+              \"branch\": \"main\",
+              \"autoDeploy\": \"yes\",
+              \"serviceDetails\": {
+                \"plan\": \"free\",
+                \"runtime\": \"node\",
+                \"envSpecificDetails\": { \"buildCommand\": \"npm install\", \"startCommand\": \"npm start\" },
+                \"healthCheckPath\": \"/health\"
+              }
+            }")
+            echo "$RESP" | python3 -c "import json,sys; d=json.load(sys.stdin); s=d.get('service',d); print('service id:', s.get('id')); print('url:', (s.get('serviceDetails') or {}).get('url'))" || echo "$RESP" | head -c 500
+            SERVICE_ID=$(echo "$RESP" | python3 -c "import json,sys; d=json.load(sys.stdin); print(d.get('service',d).get('id',''))" 2>/dev/null || true)
+          fi
+          echo "Done. Service dashboard: https://dashboard.render.com — set Environment values next (see RENDER-ENV.txt)."

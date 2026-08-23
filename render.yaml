@@ -1,0 +1,39 @@
+# Render Blueprint — deploy with "New +" > "Blueprint" pointing at this repo,
+# or create a Web Service manually with these settings.
+services:
+  - type: web
+    name: neopolis-autoblog
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: RUN_TOKEN
+        generateValue: true          # copy this into your cron-job.org headers
+      - key: SHEET_ID
+        value: 1V3zMb6hVND0sgWry0mW4fmDzNEAHGRxLuuzTwfmC2Vc
+      - key: GOOGLE_SERVICE_ACCOUNT_JSON
+        sync: false                  # paste the service-account JSON in the dashboard
+      - key: DRIVE_FOLDER_ID
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: SEARCH_API_KEY
+        sync: false
+      - key: SEARCH_ENGINE_ID
+        sync: false
+      - key: PUBLISH_MODE
+        value: dry_run               # switch to github or netlify_api when ready
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_REPO
+        sync: false
+      - key: NETLIFY_TOKEN
+        sync: false
+      - key: NETLIFY_SITE_ID
+        value: 47e0a5cc-d9d9-428b-a36b-beea806bff6f
+      - key: LINKEDIN_ACCESS_TOKEN
+        sync: false
+      - key: LINKEDIN_AUTHOR_URN
+        sync: false
