@@ -42,10 +42,11 @@ function guard(req, res, next) {
   next();
 }
 
-// Admin panel: the HTML shell is public (it only shows a login box);
-// every /admin/api/* call requires the token.
+// Admin panel. When ADMIN_OPEN (default) the panel and its API need no token —
+// /admin loads straight in. Set ADMIN_OPEN=false to require the RUN_TOKEN sign-in.
 app.use('/admin', (req, res, next) => {
   if (req.path === '/' || req.path === '') return next();
+  if (CFG.ADMIN_OPEN) return next();
   if (!tokenOk(req)) return res.status(401).json({ error: 'bad token' });
   next();
 }, admin.router);

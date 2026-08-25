@@ -304,7 +304,7 @@ a{color:var(--navy2)}
 #msg{position:fixed;bottom:1rem;right:1rem;background:var(--navy);color:#fff;padding:.6rem 1rem;border-radius:8px;display:none;max-width:70vw}
 h2{margin:1.2rem 0 .6rem;color:var(--navy);font-size:1.05rem}
 </style></head><body>
-<div id="login"><h2 style="margin:0 0 .4rem">NEOPOLIS <span style="font-weight:400">Admin</span></h2>
+<div id="login" style="display:none"><h2 style="margin:0 0 .4rem">NEOPOLIS <span style="font-weight:400">Admin</span></h2>
 <p class="muted">Enter the admin token (RUN_TOKEN) to continue.</p>
 <input id="tok" type="password" placeholder="admin token"><br>
 <button class="act" style="padding:.6rem 1.6rem" onclick="saveTok()">Sign in</button></div>

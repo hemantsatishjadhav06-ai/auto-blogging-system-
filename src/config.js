@@ -77,6 +77,11 @@ module.exports = {
   // --- Notifications ---
   NOTIFY_EMAIL: env('NOTIFY_EMAIL', 'hjadhav7733@gmail.com'),
 
+  // --- Admin panel ---
+  // Open by default: /admin loads straight in with no token/login screen.
+  // Set ADMIN_OPEN=false to require the RUN_TOKEN sign-in again.
+  ADMIN_OPEN: env('ADMIN_OPEN', 'true') === 'true',
+
   // --- LinkedIn ---
   LINKEDIN_ACCESS_TOKEN: env('LINKEDIN_ACCESS_TOKEN', ''),
   LINKEDIN_AUTHOR_URN: env('LINKEDIN_AUTHOR_URN', ''), // e.g. urn:li:person:xxxx
