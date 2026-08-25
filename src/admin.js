@@ -370,7 +370,9 @@ function show(v,btn){document.querySelectorAll('main > section').forEach(s=>s.st
 document.querySelectorAll('nav button[data-v]').forEach(b=>b.classList.remove('on'));if(btn)btn.classList.add('on');
 ({hub:loadHub,dash:loadDash,blogs:loadBlogs,projects:loadProjects,qa:loadQA})[v]();}
 async function boot(){
-  try{await api('/admin/api/overview');$('login').style.display='none';$('app').style.display='';loadHub();}
+  // Probe the auth-resilient Hub health endpoint: it returns 200 in open mode even
+  // before Google is connected. Only a 401 (locked mode, bad/no token) shows login.
+  try{await api('/admin/api/hub/health');$('login').style.display='none';$('app').style.display='';loadHub();}
   catch(e){$('login').style.display='';$('app').style.display='none';if(TOKEN)toast('Sign-in failed: '+e.message);}
 }
 async function loadHub(){
